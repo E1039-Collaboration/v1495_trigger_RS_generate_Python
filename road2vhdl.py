@@ -1,5 +1,5 @@
 # reads roads.tsv file and generates L1 trigger matrix for the new mapping
-# Forhad enacted as of end of 2019 
+# Forhad enacted as of end of 2019
 
 # shit its really hard to do a direct comparison of firmware because I have
 # no idea what order the roads were sorted in the old version, and I don't
@@ -9,7 +9,7 @@
 # spacing from tab expand is dumb but oh well...
 
 
-# N wuerfel 
+# N wuerfel
 # ~ AP AP AP AP ~
 
 pxbins = 12
@@ -30,7 +30,7 @@ def roadIdToHodoWord(roadid):
     #print h2
     #print h3
     #print h4
- 
+
     hodoword = h1.zfill(2)+h2.zfill(2)+h3.zfill(2)+h4.zfill(2)
 
     #print hodoword
@@ -42,7 +42,8 @@ def roadIdToHodoWord(roadid):
 # returns list
 def readL1FirmwareMap(filename):
     maplines = []
-    print "reading mapping for " + filename
+    #print "reading mapping for " + filename
+    print("reading mapping for " + filename)
     with open(filename) as fp:
         mapping = fp.readlines()
         mapping = mapping[1:]
@@ -52,19 +53,20 @@ def readL1FirmwareMap(filename):
 
     return maplines
 
-# reads roadset and generates and generates array of  roads as 
+# reads roadset and generates and generates array of  roads as
 # [roadid, hodo_pattern_word] elements
 # returns roadset, array with num in each bin, indexed by bin
 def readL1roadset(filename):
     L1roadset=[]
-    print "reading roadset for " + filename
+    #print"reading roadset for " + filename
+    print("reading roadset for " + filename)
     with open(filename) as fp:
-        roads = fp.readlines() 
-        for rawroad in roads: 
+        roads = fp.readlines()
+        for rawroad in roads:
             hodo_pattern_word = ''
             rawroad = rawroad.strip().split()
             roadid = int(rawroad[0])
-            print roadid
+            print(roadid)
             hodo_pattern_word = roadIdToHodoWord(roadid)
             PxBin = 1; # force it
             road = [roadid, hodo_pattern_word, PxBin]
@@ -80,7 +82,7 @@ def road2firmwareline(mapping, hodoword, half):
     firmwarewords=[]
     for i in range(1,5):
         searchword = "H"+str(i)+half
-        # god I hate the corner case of H4 having u and b 
+        # god I hate the corner case of H4 having u and b
         if i==4:
             searchword = searchword + "u"
         searchword = searchword+str(hodoword[2*(i-1):2*i].zfill(2))
@@ -91,11 +93,11 @@ def road2firmwareline(mapping, hodoword, half):
                 found = 1
                 break
         if not found:
-            print "couldn't find this hit:"
-            print searchword
+            print("couldn't find this hit:")
+            print(searchword)
             quit()
 
-    # constructing the line with stupid formatting 
+    # constructing the line with stupid formatting
     vhdline = "        if("
     for idx,word in enumerate(firmwarewords):
         letter = word[0]
@@ -119,8 +121,8 @@ def road2firmwareline(mapping, hodoword, half):
 # produces a line like: "if(up to 4 fold OR)then"
 def ORreduce(header,signals,level,pxbin):
     if len(signals) < 1 or len(signals) > 4:
-        print "wrong length for ,levelsigset..."
-        print signals
+        print("wrong length for ,levelsigset...")
+        print (signals)
         quit()
     line="      if("
     for sigdx,sig in enumerate(signals):
@@ -129,7 +131,7 @@ def ORreduce(header,signals,level,pxbin):
         if sigdx < len(signals)-1:
             line = line + "OR "
     line = line + ")then\n"
-    print line
+    print(line)
     return line
 
 def main(version):
@@ -143,9 +145,9 @@ def main(version):
     vhdlfilename = "e1039_vhdl/code_" + str(version) + ".vhd"
     vhdlheaderfname = "e1039vhdtext/" + str(version) + "header.txt"
 
-    mappingfile = "e1039_TDC_mappings/" + str(version)+"mapping.txt" 
+    mappingfile = "e1039_TDC_mappings/" + str(version)+"mapping.txt"
     hodomapping = readL1FirmwareMap(mappingfile)
-    print hodomapping
+    print(hodomapping)
 
     proadfname = "rs_103/pos_"+halfname+".txt"
     mroadfname = "rs_103/neg_"+halfname+".txt"
@@ -153,18 +155,21 @@ def main(version):
     proads,ppxbins = readL1roadset(proadfname)
     mroads,mpxbins = readL1roadset(mroadfname)
 
-    print ppxbins
-    print mpxbins
+    print (ppxbins)
+    print (mpxbins)
 
 
 
     # multidim: [[numperbin_0..._i],....] indx is level
-    psiglens = [] 
+    psiglens = []
     msiglens = []
 
     # somethings are nasty hardcoded headers...
     with open(vhdlfilename,"w") as vfp:
         # copy header over
+
+        vfp.write("--- VHLD for roadsets"+ proadfname+ "and "+ mroadfname + "\n")
+
         with open(vhdlheaderfname,"r") as hfp:
             lines = hfp.readlines()
             for line in lines:
@@ -173,8 +178,8 @@ def main(version):
         # this take input about num roads -> 12 signals for each pxbin (can
         # change later but for now just recreate old version)
         # num signals in l1 is numroads in bin
-        #//TODO 
-        # 8 levels for pos and 8 for min 
+        #//TODO
+        # 8 levels for pos and 8 for min
         # TODO change PF and NF to MF just recreating now
         for header in ["PF","NF"]:
             if header == "PF":
@@ -208,25 +213,26 @@ def main(version):
                     ": std_logic_vector" + "(" + \
                     str(siglen - offset).rjust(4) + \
                     " downto 0);\n"
+                        vfp.write(line)
 
                     # update lasbinvals
-                    lastbinval[binno] = siglen 
+                    lastbinval[binno] = siglen
 
-                    
-                    vfp.write(line)
+
+
              # other stupid corner case is last line, always same
-            line = "        signal " + header + "_temp_lv8: " + \
+            line_final = "        signal " + header + "_temp_lv8: " + \
             "std_logic_vector(  11 downto 0);\n"
-            vfp.write(line)
+            vfp.write(line_final)
 
-                      
+
         # write the mapping that swaps channels around between sampling and
         # the firmware values...
         with open("e1039vhdtext/signalmapping.txt","r") as sigmapfp:
             lines = sigmapfp.readlines()
             for line in lines:
                 vfp.write(line)
-        
+
 
         # now write l0, doesn't change because it just combines u/d on
         # vertical in ST4 and kills a clock for other signals
@@ -258,9 +264,9 @@ def main(version):
                 # match signal length
                 if int(binidx) != int(road[2]):
                     if bincount != int(binlist[binidx]):
-                        print "bincount written doesn't match sig len"
-                        print "count: " + str(bincount)
-                        print "siglen: " + str(binlist[binidx])
+                        print("bincount written doesn't match sig len")
+                        print("count: " + str(bincount))
+                        print("siglen: " + str(binlist[binidx]))
                         quit()
                     binidx = binidx+1
                     bincount = 0
@@ -270,7 +276,7 @@ def main(version):
                 road[1],half)
                 signal = header + "_temp_lv1_" + str(binidx).zfill(2) +\
                 "(" + str(bincount).rjust(4) + ")"
-            
+
                 # write this ugly guy
                 vfp.write(coincidenceline)
                 vfp.write("          "+signal+"<=\'1\';\n")
@@ -283,7 +289,7 @@ def main(version):
                 if int(binlist[i]) == 0:
                     vfp.write("\t\t  " + header + "_temp_lv1_"+\
                     str(i).zfill(2)+"(   0)<='0';\n")
-        vfp.write(" end if;\nend process;\n") 
+        vfp.write(" end if;\nend process;\n")
 
         # all except L0-1 from here just do or reduction...
         # L2 - L7 #
@@ -302,7 +308,7 @@ def main(version):
 
                 # doing reduction on sigs requires us to know how many sigs
                 # at each level in each bin...
-                nsigsforlevel = binlist[level-1]     
+                nsigsforlevel = binlist[level-1]
                 # janky way to pick max four sigs to or reduce
                 sigset = []
                 for bindx, nsig in enumerate(nsigsforlevel):
@@ -316,7 +322,7 @@ def main(version):
                         # then write to file
                         sigset.append(i)
                         if ((i+1) % 4 == 0) or (i==nsig-1):
-                            print "hit module"
+                            print("hit module")
                             vhdlORreduceline = ORreduce(header,sigset,\
                             level-1,bindx)
 
@@ -337,11 +343,11 @@ def main(version):
                                 str(int(sigset[0]/4)).rjust(4) +\
                                 ")<=\'1\';\n")
 
-                            # or 
+                            # or
                             vfp.write("\t\t  else\n")
 
                             # set next sig to 0
-                            # again corner case on lastlev 
+                            # again corner case on lastlev
                             if level == nlevels-1:
                                 vfp.write("\t\t  " + header+"_temp_lv"+\
                                 str(level)+ "("+\
@@ -359,30 +365,30 @@ def main(version):
                             # clear sigs for next line
                             sigset[:] = []
 
-                            # L8 is basically the same but 
+                            # L8 is basically the same but
                             # only one sig rather than many bins
 
 
-                # trailers at each level
-                vfp.write(" end if;\n")
-                vfp.write("end process;\n")
+            # trailers at each level
+            vfp.write(" end if;\n")
+            vfp.write("end process;\n")
 
 
-                
+
         # tail #
         vfp.write("end rtl;")
 
 
-      
+
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print "usage: $> python road2vhdl.py <revision number>"
+        print("usage: $> python road2vhdl.py <revision number>")
         quit()
     else:
         version = int(sys.argv[1])
         if version not in [460,470]:
-            print "please give revision 460 or 470"
+            print("please give revision 460 or 470")
             quit()
     main(version)
