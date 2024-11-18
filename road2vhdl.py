@@ -149,8 +149,13 @@ def main(version):
     hodomapping = readL1FirmwareMap(mappingfile)
     print(hodomapping)
 
-    proadfname = "rs_103/pos_"+halfname+".txt"
-    mroadfname = "rs_103/neg_"+halfname+".txt"
+    #proadfname = "rs_103/pos_"+halfname+".txt"
+    #mroadfname = "rs_103/neg_"+halfname+".txt"
+
+    proadfname = "/Users/ievgenlavrukhin/work/SpinQuest/Trigger_RoadSets/2024/136/pos_"+halfname+".txt"
+    mroadfname = "/Users/ievgenlavrukhin/work/SpinQuest/Trigger_RoadSets/2024/136/neg_"+halfname+".txt"
+
+
 
     proads,ppxbins = readL1roadset(proadfname)
     mroads,mpxbins = readL1roadset(mroadfname)
@@ -168,7 +173,7 @@ def main(version):
     with open(vhdlfilename,"w") as vfp:
         # copy header over
 
-        vfp.write("--- VHLD for roadsets"+ proadfname+ "and "+ mroadfname + "\n")
+        vfp.write("--- VHLD for roadsets"+ proadfname+ " and "+ mroadfname + "\n")
 
         with open(vhdlheaderfname,"r") as hfp:
             lines = hfp.readlines()
