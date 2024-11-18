@@ -5,7 +5,7 @@ Also some pattern generations
 
 python3 road2vhdl.py 460 or python3 road2vhdl.py 470 
 
-copy vhdl files to the proper FPGA design and compile:
+copy vhdl files to the proper FPGA design and compile
 
 2) To conver RS to text file (you have to change "rs_directory"  parameter in the python file):
 
