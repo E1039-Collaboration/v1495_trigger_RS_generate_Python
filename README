@@ -1,3 +1,20 @@
 Python program to generate trigger matrix from roads...
 Also some pattern generations
 
+1) To conver RS to VHDL file:
+
+python3 road2vhdl.py 460 or python3 road2vhdl.py 470 
+
+copy vhdl files to the proper FPGA design and compile:
+
+2) To conver RS to text file (you have to change "rs_directory"  parameter in the python file):
+
+python3 road2text.py  
+
+File will generate 4 files: rs_LB_neg_bot.txt rs_LB_neg_top.txt rs_LB_pos_bot.txt rs_LB_pos_top.txt
+in the "rs_directory/mapping" directory. THis files needs to be copied to the online monitoring system: 
+
+/data2/e1039/resource/trigger/rs/rs***, where *** is the specific roadset, for example 135.
+
+
+
